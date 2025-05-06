@@ -3,7 +3,7 @@ part 'contact.g.dart';
 
 @JsonSerializable()
 class Contact {
-  String id;
+  String? id;
   String name;
   String job;
   String age;
