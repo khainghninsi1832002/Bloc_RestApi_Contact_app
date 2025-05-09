@@ -1,16 +1,18 @@
 import 'package:blocrestapicontactapplication/bloc/get/cubit/getcontact_cubit.dart';
 import 'package:blocrestapicontactapplication/data/model/contact.dart';
 import 'package:blocrestapicontactapplication/screen/add_screen.dart';
+import 'package:blocrestapicontactapplication/screen/edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<GetcontactCubit>(context)
-        .getContact(); //screenလာလာချင်း dataလမ်းယူမယ်
+    // BlocProvider.of<GetcontactCubit>(context)
+    //     .getContact(); //screenလာလာချင်း dataလမ်းယူမယ်
     return Scaffold(
       appBar: AppBar(
         title: Text('Contact List'),
@@ -31,7 +33,7 @@ class Home extends StatelessWidget {
           return ListView.builder(
             itemCount: contacts.length,
             itemBuilder: (context, position) {
-              return item(contacts[position]);
+              return item(contacts[position], context);
             },
           );
         }
@@ -40,12 +42,46 @@ class Home extends StatelessWidget {
     );
   }
 
-  Widget item(Contact contact) {
+  Widget item(Contact contact, BuildContext context) {
     return Card(
-      child: ListTile(
-        title: Text(contact.name),
-        subtitle: Text(contact.job),
-        trailing: Text('age : ${contact.age}'),
+      child: Slidable(
+        startActionPane: ActionPane(
+          motion: ScrollMotion(),
+          children: [
+            SlidableAction(
+              flex: 1,
+              onPressed: (BuildContext context) async {
+                var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EditScreen(contact)));
+                if (result != null && result == 'success') {
+                  BlocProvider.of<GetcontactCubit>(context).getContact();
+                }
+              },
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white,
+              icon: Icons.edit,
+              label: 'Edit',
+            ),
+            SlidableAction(
+              flex: 1,
+              onPressed: (BuildContext context) {
+                BlocProvider.of<GetcontactCubit>(context)
+                    .delete(contact.id.toString());
+              },
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              icon: Icons.delete,
+              label: 'Delete',
+            ),
+          ],
+        ),
+        child: ListTile(
+          title: Text(contact.name),
+          subtitle: Text(contact.job),
+          trailing: Text('age : ${contact.age}'),
+        ),
       ),
     );
   }
